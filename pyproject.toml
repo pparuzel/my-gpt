@@ -1,0 +1,44 @@
+[build-system]
+requires = [
+    "setuptools>=61",
+    "setuptools_scm>=8",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gpt-from-scratch"
+dynamic = ["version"]
+description = "Implementation of GPT in PyTorch from the ground up."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.3.3",
+    "torch>=2.8.0",
+    "tqdm>=4.67.1",
+]
+
+[dependency-groups]
+dev = [
+  {include-group = "lint"},
+]
+lint = [
+  "ruff>=0.13",
+]
+
+[tool.uv]
+default-groups = []
+
+[tool.setuptools]
+packages = ["mygpt"]
+
+[tool.setuptools_scm]
+version_scheme = "no-guess-dev"
+local_scheme = "node-and-date"
+
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D", "T201", "T203"]
