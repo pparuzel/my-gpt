@@ -87,6 +87,8 @@ def parse_arguments() -> argparse.Namespace:
         type=int,
         nargs="?",
         default=0,
+        const=Defaults.MAX_TOKENS,
+        dest="num_tokens",
         metavar="num_tokens",
         help=(
             f"Generate a specified number of tokens after training "
@@ -245,8 +247,8 @@ def main() -> None:
         save_to = save_to.parent / (save_to.name + ".pt")
     dataset_name = args.dataset
     train_val_split = Defaults.TRAIN_VAL_SPLIT  # hard-coded for now
-    num_tokens = args.generate or Defaults.MAX_TOKENS
     ctx_len = args.ctx or Defaults.CTX_LEN
+    num_tokens = args.num_tokens
 
     data = DataProcessor(
         CharTokenizer,
@@ -304,7 +306,7 @@ def main() -> None:
         no_save = ans != "y"
     if not no_save:
         save_model(model, config, train_config)
-    if args.generate:
+    if num_tokens > 0:
         generate(
             model,
             max_tokens=num_tokens,
