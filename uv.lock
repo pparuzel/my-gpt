@@ -54,8 +54,8 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "ruff", specifier = ">=0.13.0" }]
-lint = [{ name = "ruff", specifier = ">=0.13.0" }]
+dev = [{ name = "ruff", specifier = ">=0.13" }]
+lint = [{ name = "ruff", specifier = ">=0.13" }]
 
 [[package]]
 name = "jinja2"
