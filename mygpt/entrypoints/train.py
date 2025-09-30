@@ -1,4 +1,5 @@
 import argparse
+import textwrap
 from pprint import pprint
 
 import torch
@@ -295,7 +296,10 @@ def main() -> None:
     except KeyboardInterrupt:
         print("=== Training interrupted ===")
         print()
-        question = "Would you like to save the model? [y]/n: "
+        question = textwrap.dedent(f"""\
+            Would you like to save the model?
+            "{train_config.save_checkpoint}"
+            [y]/n: """)
         ans = input(question).strip().lower() or "y"
         no_save = ans != "y"
     if not no_save:
