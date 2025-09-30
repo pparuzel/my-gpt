@@ -268,16 +268,17 @@ def main() -> None:
         seed=seed,
     )
 
+    if train_config.load_checkpoint:
+        model = load_model(train_config.load_checkpoint)
+        config = model.config  # override config from loaded model
+    else:
+        model = GPT(config, data.tokenizer, device=device)
+    model.to(device)
+
     print("=== Training ===")
     print()
     pprint(config)
     pprint(train_config)
-
-    if train_config.load_checkpoint:
-        model = load_model(train_config.load_checkpoint)
-    else:
-        model = GPT(config, data.tokenizer, device=device)
-    model.to(device)
 
     try:
         train(model, data, train_config)
