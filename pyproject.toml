@@ -26,6 +26,11 @@ lint = [
   "ruff>=0.13",
 ]
 
+# Entrypoints
+[project.scripts]
+training = "mygpt.entrypoints.train:main"
+generation = "mygpt.entrypoints.generate:main"
+
 [tool.uv]
 default-groups = []
 
