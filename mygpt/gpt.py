@@ -20,7 +20,6 @@ class GPT(torch.nn.Module):
         device: TorchDevice | None = None,
     ) -> None:
         super().__init__()
-        self.device = device
         self.tokenizer = tokenizer
         self.config = config
         self.transformer = Transformer(

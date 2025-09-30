@@ -273,6 +273,7 @@ def main() -> None:
 
     if train_config.load_checkpoint:
         model = load_model(train_config.load_checkpoint)
+        model.to(device)
         config = model.config  # override config from loaded model
         # We should consider saving the model under the same name.
         train_config.save_checkpoint = train_config.load_checkpoint or save_to
@@ -284,7 +285,6 @@ def main() -> None:
             num_blocks=args.blocks or Defaults.NUM_BLOCKS,
         )
         model = GPT(config, train_config, data.tokenizer, device=device)
-    model.to(device)
 
     print("=== Training ===")
     print()
