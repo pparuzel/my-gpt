@@ -10,10 +10,10 @@ class Defaults:
     EMB_DIM = 128
     NUM_HEADS = 16
     NUM_BLOCKS = 1
-    DROPOUT = 0.2
     # Training
     BATCH_SIZE = 128
     LEARNING_RATE = 1e-3
+    DROPOUT = 0.2
     EPOCHS = 5000
     L2_REG = 1e-2
     EVAL_INTERVAL = 500

@@ -1,7 +1,7 @@
 import torch
 
 from mygpt.attention_blocks import AttentionBlock
-from mygpt.config import GPTConfig
+from mygpt.config import GPTConfig, TrainingConfig
 from mygpt.positional_encodings import add_positional_encoding_layer
 
 
@@ -9,6 +9,7 @@ class Transformer(torch.nn.Module):
     def __init__(
         self,
         cfg: GPTConfig,
+        train_cfg: TrainingConfig,
         *,
         vocab_size: int,
     ) -> None:
@@ -29,7 +30,7 @@ class Transformer(torch.nn.Module):
                 num_heads=cfg.num_heads,
                 emb_dim=cfg.emb_dim,
                 ctx_len=cfg.ctx_len,
-                dropout=cfg.dropout,
+                dropout=train_cfg.dropout,
             )
             for _ in range(cfg.num_blocks)
         ]

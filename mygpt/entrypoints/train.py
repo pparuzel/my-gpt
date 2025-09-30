@@ -12,6 +12,7 @@ from mygpt.entrypoints.generate import generate
 from mygpt.tokenizers import CharTokenizer
 from mygpt.utils import (
     as_ckpt_path,
+    as_existing_ckpt_path,
     handle_backend,
     handle_randomness,
     load_model,
@@ -93,7 +94,7 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--load",
-        type=as_ckpt_path,
+        type=as_existing_ckpt_path,
         default=None,
         dest="model_name",
         metavar="model_name",
@@ -102,9 +103,13 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         "-o",
+        type=as_ckpt_path,
+        default=None,
         metavar="model_name",
-        default="",
-        help="Store model with a specified name under checkpoints/",
+        help=(
+            "Store model with a specified name under checkpoints/ or"
+            "an absolute path"
+        ),
     )
     parser.add_argument(
         "--dataset",
@@ -150,6 +155,7 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--learning-rate",
+        "--lr",
         "-l",
         type=float,
         default=0.0,
@@ -232,47 +238,51 @@ def main() -> None:
     device = handle_backend(args.backend)
     seed = handle_randomness(args.seed)
     no_save = args.no_save
+    load_from = args.model_name
     save_to = args.output
-    if args.output and not args.output.endswith(".pt"):
-        save_to = args.output + ".pt"
+    if save_to and not save_to.name.endswith(".pt"):
+        save_to = save_to.parent / (save_to.name + ".pt")
     dataset_name = args.dataset
     train_val_split = Defaults.TRAIN_VAL_SPLIT  # hard-coded for now
     num_tokens = args.generate or Defaults.MAX_TOKENS
+    ctx_len = args.ctx or Defaults.CTX_LEN
 
-    config = GPTConfig(
-        ctx_len=args.ctx or Defaults.CTX_LEN,
-        emb_dim=args.emb or Defaults.EMB_DIM,
-        num_heads=args.heads or Defaults.NUM_HEADS,
-        num_blocks=args.blocks or Defaults.NUM_BLOCKS,
-        dropout=args.drop or Defaults.DROPOUT,
-    )
     data = DataProcessor(
         CharTokenizer,
         dataset_name,
         train_val_split=train_val_split,
-        ctx_len=config.ctx_len,
+        ctx_len=ctx_len,
         device=device,
     )
     train_config = TrainingConfig(
         dataset=dataset_name,
         batch_size=args.batch_size or Defaults.BATCH_SIZE,
         learning_rate=args.learning_rate or Defaults.LEARNING_RATE,
+        dropout=args.drop or Defaults.DROPOUT,
         epochs=args.epochs or Defaults.EPOCHS,
         l2_reg=args.l2_reg or Defaults.L2_REG,
         eval_interval=args.eval_interval or Defaults.EVAL_INTERVAL,
         eval_iters=args.eval_iters or Defaults.EVAL_ITERS,
         train_val_split=train_val_split,
         vocab_size=data.tokenizer.vocab_size,
-        load_checkpoint=args.model_name,
-        save_checkpoint=save_to or None,
+        load_checkpoint=load_from,
+        save_checkpoint=save_to,
         seed=seed,
     )
 
     if train_config.load_checkpoint:
         model = load_model(train_config.load_checkpoint)
         config = model.config  # override config from loaded model
+        # We should consider saving the model under the same name.
+        train_config.save_checkpoint = train_config.load_checkpoint or save_to
     else:
-        model = GPT(config, data.tokenizer, device=device)
+        config = GPTConfig(
+            ctx_len=ctx_len,
+            emb_dim=args.emb or Defaults.EMB_DIM,
+            num_heads=args.heads or Defaults.NUM_HEADS,
+            num_blocks=args.blocks or Defaults.NUM_BLOCKS,
+        )
+        model = GPT(config, train_config, data.tokenizer, device=device)
     model.to(device)
 
     print("=== Training ===")

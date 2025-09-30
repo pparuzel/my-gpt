@@ -3,7 +3,7 @@ from typing import overload
 
 import torch
 
-from mygpt.config import GPTConfig
+from mygpt.config import GPTConfig, TrainingConfig
 from mygpt.tokenizers import Tokenizer
 from mygpt.transformer import Transformer
 
@@ -14,6 +14,7 @@ class GPT(torch.nn.Module):
     def __init__(
         self,
         config: GPTConfig,
+        train_config: TrainingConfig,
         tokenizer: Tokenizer,
         *,
         device: TorchDevice | None = None,
@@ -24,6 +25,7 @@ class GPT(torch.nn.Module):
         self.config = config
         self.transformer = Transformer(
             config,
+            train_config,
             vocab_size=tokenizer.vocab_size,
         ).to(device)
 

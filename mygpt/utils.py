@@ -32,17 +32,23 @@ def read_dataset(name: str | Path) -> str:
     return name.read_text()
 
 
+def as_existing_ckpt_path(path: str | None) -> Path | None:
+    if path is None:
+        return None
+    return _as_ckpt_path(path, must_exist=True)
+
+
 def as_ckpt_path(path: str | None) -> Path | None:
     if path is None:
         return None
-    return _as_ckpt_path(path)
+    return _as_ckpt_path(path, must_exist=False)
 
 
-def _as_ckpt_path(path: str) -> Path:
+def _as_ckpt_path(path: str, *, must_exist: bool = False) -> Path:
     p = MODELS_DIR / path
     if p.suffix != ".pt":
         p = p.parent / (p.name + ".pt")
-    if not p.exists():
+    if must_exist and not p.exists():
         msg = f"Checkpoint path {p} does not exist"
         raise FileNotFoundError(msg)
     return p
@@ -61,7 +67,6 @@ def save_model(
             f".e{config.emb_dim}"
             f".h{config.num_heads}"
             f".b{config.num_blocks}"
-            f".d{config.dropout}"
             f"-{date_str}.pt"
         )
     torch.save(model, MODELS_DIR / name)

@@ -8,7 +8,6 @@ class GPTConfig:
     emb_dim: int
     num_heads: int
     num_blocks: int
-    dropout: float
 
 
 @dataclass
@@ -16,6 +15,7 @@ class TrainingConfig:
     dataset: str
     batch_size: int
     learning_rate: float
+    dropout: float
     epochs: int
     l2_reg: float
     eval_interval: int
@@ -24,4 +24,4 @@ class TrainingConfig:
     vocab_size: int
     seed: int
     load_checkpoint: Path | None = None
-    save_checkpoint: str | None = None
+    save_checkpoint: Path | None = None
