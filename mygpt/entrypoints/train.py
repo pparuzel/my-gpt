@@ -55,8 +55,19 @@ def train(
         # L2 regularization to avoid overfitting
         weight_decay=train_config.l2_reg,
     )
-    train_progress = tqdm.trange(0, train_config.epochs)
     batch_size = train_config.batch_size
+    # Estimate the initial losses
+    losses = generate_loss(
+        model,
+        data,
+        batch_size=batch_size,
+        eval_iters=train_config.eval_iters,
+    )
+    train_progress = tqdm.trange(
+        1,
+        train_config.epochs + 1,
+        postfix={"epoch": 0, **losses},
+    )
 
     # Main loop.
     for epoch in train_progress:
