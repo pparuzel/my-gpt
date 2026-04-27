@@ -40,7 +40,7 @@ class CausalSelfAttention(torch.nn.Module):
         # Token affinities. (Batch, Head, Time, Time).
         affinities = query @ key.transpose(-1, -2)
         # Avoids extremely large dot products with normalization scaling.
-        affinities *= c**0.5
+        affinities /= head_size**0.5
         # A decoder needs to be autoregressive, hence causal masking.
         # Softmax zeroes out the weights for illegal connections (-inf).
         attention = affinities.masked_fill(
